@@ -1,6 +1,6 @@
 #bashrc
 # load cloudrc for the first time
-# . <(curl -sS https://raw.githubusercontent.com/jamesona/bashrc/master/bashrc)
+# . <(curl -sS https://raw.githubusercontent.com/jamesona/.scripts/master/.bashrc)
 
 # enable bash completion in interactive shells
 if ! shopt -oq posix; then
