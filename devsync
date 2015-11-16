@@ -1,0 +1,57 @@
+#/bin/bash
+OPTERR=0
+BRANCH=`git rev-parse --abbrev-ref HEAD`
+function help {
+	echo <<EOF "
+
+USAGE: devsync [opt]... [optarg]...
+Automatically synchronize local development branch with a remote dev server.
+
+  -o 				Set new origin branch
+  -n  [name]		Create new branch, and set its upstream target
+"
+EOF
+}
+
+while getopts hn:o opt; do
+	case $opt in
+		h)
+			help
+			exit 0
+			;;
+		o)
+			echo "Setting upstream path 'origin/$BRANCH'"
+			{
+				git branch --set-upstream $BRANCH origin/$BRANCH 
+			} || {
+				echo "ERROR: Could not set upstream target." >&2
+			}
+			exit 0
+			;;
+		n)
+			BRANCH=$OPTARG
+			echo "Creating new branch '$BRANCH' with upstream target 'origin/$BRANCH'"
+			{
+				git checkout master 
+				git checkout -b $BRANCH 
+				git push origin $BRANCH 
+				git branch --set-upstream $BRANCH origin/$BRANCH 
+			} || {
+				echo "ERROR: Could not set upstream target." >&2
+				echo "Cleaning up..."
+				git checkout -- *
+				git checkout master
+				git branch -d $BRANCH
+				echo "Exiting"
+			}
+			exit 0
+			;;
+		\?)
+			echo -e "\nInvalid option $@" >&2
+			help
+			exit 1
+			;;
+	esac
+done
+
+git push && git checkout dev && git merge $BRANCH && git push && git checkout $BRANCH
