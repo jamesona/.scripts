@@ -22,7 +22,7 @@ while getopts hn:o opt; do
 		o)
 			echo "Setting upstream path 'origin/$BRANCH'"
 			{
-				git branch --set-upstream $BRANCH origin/$BRANCH 
+				git branch --set-upstream-to $BRANCH origin/$BRANCH 
 			} || {
 				echo "ERROR: Could not set upstream target." >&2
 			}
@@ -35,7 +35,7 @@ while getopts hn:o opt; do
 				git checkout master 
 				git checkout -b $BRANCH 
 				git push origin $BRANCH 
-				git branch --set-upstream $BRANCH origin/$BRANCH 
+				git branch --set-upstream-to $BRANCH origin/$BRANCH 
 			} || {
 				echo "ERROR: Could not set upstream target." >&2
 				echo "Cleaning up..."
