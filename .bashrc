@@ -159,11 +159,13 @@ alias ip="wget -q -O - checkip.dyndns.org | sed -e 's/[^[:digit:]|.]//g'"
 
 ## functions
 syncscripts() {
+  CD=$(pwd)
   git --version > /dev/null 2>&1 || { echo >&2 "Git isn't installed... Aborting"; exit 1; }
   cd ~/.scripts
   git pull
   git commit -am"autosync $(date)"
   git push
+  cd $CD
 }
 
 fman(){ man $@ | gedit;}
