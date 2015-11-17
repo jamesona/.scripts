@@ -158,9 +158,12 @@ alias r='source ~/.bashrc;reset'
 alias ip="wget -q -O - checkip.dyndns.org | sed -e 's/[^[:digit:]|.]//g'"
 
 ## functions
-updaterc() {
-  curl -sS https://raw.githubusercontent.com/jamesona/bashrc/master/bashrc > ~/.bashrc
-  source ~/.bashrc
+syncscripts() {
+  git --version > /dev/null 2>&1 || { echo >&2 "Git isn't installed... Aborting"; exit 1; }
+  cd ~/.scripts
+  git pull
+  git commit -am"autosync $(date)"
+  git push
 }
 
 fman(){ man $@ | gedit;}
