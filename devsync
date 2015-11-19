@@ -1,31 +1,38 @@
 #/bin/bash
 OPTERR=0
 BRANCH=`git rev-parse --abbrev-ref HEAD`
+
 function help {
 	echo <<EOF "
 USAGE: devsync [opt]... [optarg]...
 Automatically synchronize local development branch with a remote dev server.
-  -o 			Set new origin branch
-  -n  [name]	Create new branch, and set its upstream target
-  -m 			Supply a custom message for the commit
-  -r			Create a pull request in github for your current local branch
-  -d			Delete your current local branch
+
+  -u 		Update the repo's master and dev branches.
+  -o 		Set new origin branch
+  -n [name]	Create new branch, and set its upstream target
+  -m 		Supply a custom message for the commit
+  -r		Create a pull request in github for your current local branch
+  -d		Delete your current local branch
 "
 EOF
 }
+
 function getBranch {
 	echo `git rev-parse --abbrev-ref HEAD`
 }
 function escapeBranch {
 	echo `echo $BRANCH | sed -e 's/_/N/g'`
 }
+
 # returns the number of local branches
 function getNumBranches {
 	echo `git rev-parse --abbrev-ref --branches | grep -P '^((?!dev)(?!master).)' | wc -l`
 }
+
 function isLocal {
 	if [ `git rev-parse --abbrev-ref HEAD | grep -P '^((?!dev)(?!master).)'` ]; then echo 1; fi
 }
+
 # If we're on a local branch, return the current branch.  Else, return the first local branch with no pullRequest pending (if none, return the first local branch)
 function getLocal {
 	if [ `isLocal` ]; then
@@ -46,9 +53,11 @@ function getLocal {
 function localExists {
 	if [ `getLocal` ]; then echo 1; fi
 }
+
 function getCommitNum {
 	if [ `localExists` ]; then echo `git config --local $(getLocal | sed -e 's/_/N/g').commitNum`; fi
 }
+
 # Make sure we're on a local branch.  Exit if there is no local branch.
 function switchToLocal {
 	if [ `localExists` ]; then
@@ -62,17 +71,27 @@ function switchToLocal {
 		exit 1;
 	fi
 }
+
 function commitChanges {
 	echo "Adding, committing, merging into dev, pushing dev, checking out '$BRANCH' again"
 	git add --all && git commit -m "$MESSAGE" && git push && git checkout dev && git merge $BRANCH && git push && git checkout $BRANCH
 	git config --local `escapeBranch`.commitNum $((`git config --local $(escapeBranch).commitNum` + 1))
 }
+
+
 MESSAGE="`getLocal` #`getCommitNum`"
-while getopts thn:om:rd opt; do
+
+
+while getopts uhn:om:rd opt; do
 	case $opt in
-		t)
-			echo "Creating pull request for branch '`getLocal`'"
-			#if [ `getLocal` ]; then echo "Local branch exists!"; else echo "No local branch..."; fi
+		u)
+			echo "Syncing master and dev branches"
+			{
+				git checkout dev && git pull && git checkout master && git pull
+			} || {
+				git checkout master && git pull && git checkout dev && git pull && git checkout master
+			}
+			switchToLocal
 			exit 0
 			;;
 		h)
@@ -140,8 +159,14 @@ while getopts thn:om:rd opt; do
 			fi
 			
 			echo "Deleting your local branch"
-			git config --local --unset `escapeBranch`.commitNum && git config --local --unset `escapeBranch`.hasPullRequest
-			git checkout master && git branch -d $BRANCH && git push origin :$BRANCH
+			{
+				git config --local --unset `escapeBranch`.commitNum && git config --local --unset `escapeBranch`.hasPullRequest
+				git checkout master && git branch -d $BRANCH && git push origin :$BRANCH
+			} || {
+				echo "Kurt must have deleted the upstream branch... Fixing problems thanks to Kurt's generosity..."
+				git fetch -p
+			}
+			echo "Success! Branch $BRANCH successfully deleted"
 			exit 0
 			;;
 		\?)
@@ -151,7 +176,10 @@ while getopts thn:om:rd opt; do
 			;;
 	esac
 done
+
+
 switchToLocal
+
 if [ "`git status | grep 'nothing to commit'`" = "" ]; then
 	commitChanges
 else
