@@ -166,6 +166,7 @@ syncscripts() {
   git commit -am"autosync $(date)"
   git push
   cd $CD
+  source ~/.bashrc
 }
 
 fman(){ man $@ | gedit;}
