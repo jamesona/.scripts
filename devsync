@@ -3,7 +3,7 @@ OPTERR=0
 BRANCH=`git rev-parse --abbrev-ref HEAD`
 function help {
 	echo <<EOF "
-USAGE: go [opt]... [optarg]...
+USAGE: devsync [opt]... [optarg]...
 Automatically synchronize local development branch with a remote dev server.
   -o 			Set new origin branch
   -n  [name]	Create new branch, and set its upstream target
@@ -58,7 +58,7 @@ function switchToLocal {
 			BRANCH=$LOCAL
 		fi
 	else
-		echo "You don't have a local feature branch.  Create one with 'go -n [name]'"
+		echo "You don't have a local feature branch.  Create one with 'devsync -n [name]'"
 		exit 1;
 	fi
 }
@@ -134,8 +134,8 @@ while getopts thn:om:rd opt; do
 			if [ "`git status | grep 'nothing to commit'`" = "" ]; then
 				echo "Couldn't delete local branch.  You have uncommitted changes.  Committing them..."
 				commitChanges
-				echo "Recommended: Run 'go -r' to create a pull request for your latest changes."
-				echo "Otherwise, run 'go -d' again to delete"
+				echo "Recommended: Run 'devsync -r' to create a pull request for your latest changes."
+				echo "Otherwise, run 'devsync -d' again to delete"
 				exit 1
 			fi
 			
