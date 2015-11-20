@@ -78,6 +78,18 @@ function commitChanges {
 	git config --local `escapeBranch`.commitNum $((`git config --local $(escapeBranch).commitNum` + 1))
 }
 
+function deleteBranch {
+	echo "Deleting branch, '$BRANCH'"
+	{
+		git config --local --unset `escapeBranch`.commitNum && git config --local --unset `escapeBranch`.hasPullRequest
+		git checkout master && git branch -d $BRANCH && git push origin :$BRANCH
+	} || {
+		echo "Kurt must have deleted the upstream branch... Cleaning up Kurt's generosity..."
+		git fetch -p
+	}
+	echo "Success! Branch '$BRANCH' successfully deleted"
+}
+
 
 MESSAGE="`getLocal` #`getCommitNum`"
 
@@ -158,15 +170,18 @@ while getopts uhn:om:rd opt; do
 				exit 1
 			fi
 			
-			echo "Deleting your local branch"
-			{
-				git config --local --unset `escapeBranch`.commitNum && git config --local --unset `escapeBranch`.hasPullRequest
-				git checkout master && git branch -d $BRANCH && git push origin :$BRANCH
-			} || {
-				echo "Kurt must have deleted the upstream branch... Cleaning up Kurt's generosity..."
-				git fetch -p
-			}
-			echo "Success! Branch $BRANCH successfully deleted"
+			if [ "`git config --local $(escapeBranch).hasPullRequest`" = 0 ]; then
+				echo "Warning: You haven't created any pull requests for this branch."
+			fi
+			
+			read -p "Branch to be deleted: '$BRANCH'.  Proceed [y/n]? " -n 1 -r
+			echo
+			if [[ $REPLY =~ ^[Yy]$ ]]; then
+				deleteBranch
+			else
+				echo "Exiting..."
+			fi
+			
 			exit 0
 			;;
 		\?)
