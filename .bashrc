@@ -16,8 +16,11 @@ if ! shopt -oq posix; then
     . /etc/bash_completion
   fi
 fi
-
-PS1="\[\e[0;32m\][\[\e[0;33m\]\# $(if [[ $? == 0 ]]; then echo "\[\033[01;32m\]\342\234\223"; else echo "\[\033[01;31m\]\342\234\227"; fi)\[\e[1;37m\]|\[\e[1;32m\]\u\[\e[1;37m\]|\[\e[0;34m\]\w\[\e[1;36m\]\[\e[0;32m\]]\[\e[1;0m\]:"
+if [ `whoami` == 'root' ]; then
+  PS1="\[\e[0;31m\][\[\e[0;33m\]\# $(if [[ $? == 0 ]]; then echo "\[\033[01;32m\]\342\234\223"; else echo "\[\033[01;31m\]\342\234\227"; fi)\[\e[1;37m\]|\[\e[0;31m\]\u\[\e[1;37m\]|\[\e[0;34m\]\w\[\e[1;36m\]\[\e[0;31m\]]\[\e[1;0m\]:"
+else
+  PS1="\[\e[0;32m\][\[\e[0;33m\]\# $(if [[ $? == 0 ]]; then echo "\[\033[01;32m\]\342\234\223"; else echo "\[\033[01;31m\]\342\234\227"; fi)\[\e[1;37m\]|\[\e[1;32m\]\u\[\e[1;37m\]|\[\e[0;34m\]\w\[\e[1;36m\]\[\e[0;32m\]]\[\e[1;0m\]:"
+fi
 PATH=$PATH':/sbin:~/.scripts'
 
 # Source global definitions
@@ -162,6 +165,8 @@ export LS_COLORS
 alias ll='ls -lah'
 alias r='source ~/.bashrc;reset'
 alias ip="wget -q -O - checkip.dyndns.org | sed -e 's/[^[:digit:]|.]//g'"
+alias lso="ls -alG | awk '{k=0;for(i=0;i<=8;i++)k+=((substr(\$1,i+2,1)~/[rwx]/)*2^(8-i));if(k)printf(\" %0o \",k);print}'"
+
 
 ## functions
 syncscripts() {
