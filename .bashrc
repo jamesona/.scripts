@@ -2,6 +2,12 @@
 # load cloudrc for the first time
 # . <(curl -sS https://raw.githubusercontent.com/jamesona/.scripts/master/.bashrc)
 
+# Create the link for the imported bashrc
+if ! [ -L ~/.bashrc ]; then
+  rm ~/.bashrc
+  ln -s ~/.scripts/.bashrc ~/.bashrc
+fi
+
 # enable bash completion in interactive shells
 if ! shopt -oq posix; then
   if [ -f /usr/share/bash-completion/bash_completion ]; then
