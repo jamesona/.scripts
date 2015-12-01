@@ -20,10 +20,10 @@ fi
 git_status() {
   BRANCH=`git rev-parse --abbrev-ref HEAD 2> /dev/null`
   if ! [ -z $BRANCH ]; then
-    printf "$W|$Y$BRANCH"
+    printf "\e[1;37m|\e[0;93m$BRANCH"
     CHANGES=$((`git status | grep -0 'modified\|deleted' | wc -l` + `git ls-files --others --exclude-standard | wc -l`))
     if [ $CHANGES -gt 0 ]; then
-      printf "($CHANGES)"
+      printf "[$CHANGES]"
     fi
   fi
 }
@@ -34,10 +34,11 @@ B='$(printf "\[\e[0;34m\]")'
 Y='$(printf "\[\e[0;93m\]")'
 RESET='$(printf "\[\e[1;0m\]")'
 LASTCOMMAND='\[\e[0;33m\]\# $(if [[ $? == 0 ]]; then echo "\[\033[01;32m\]\342\234\223"; else echo "\[\033[01;31m\]\342\234\227"; fi)'
+BRANCH='$(git_status)'
 if [ `whoami` == 'root' ]; then
-  PS1="$R[$LASTCOMMAND$W|$R\u$W|$B\w$(git_status)$R]$RESET:"
+  PS1="$R[$LASTCOMMAND$W|$R\u$W|$B\w$BRANCH$R]$RESET:"
 else
-  PS1="$G[$LASTCOMMAND$W|$G\u$W|$B\w$(git_status)$G]$RESET:"
+  PS1="$G[$LASTCOMMAND$W|$G\u$W|$B\w$BRANCH$G]$RESET:"
 fi
 
 # Add .scripts to path
