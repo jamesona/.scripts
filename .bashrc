@@ -16,11 +16,28 @@ if ! shopt -oq posix; then
     . /etc/bash_completion
   fi
 fi
+
+git_status() {
+  printf `git rev-parse --abbrev-ref HEAD 2> /dev/null`
+  CHANGES=$((`git status | grep -0 'modified\|deleted' | wc -l` + `git ls-files --others --exclude-standard | wc -l`))
+  if [ $CHANGES -gt 0 ]; then
+    printf "[$CHANGES]"
+  fi
+}
+W='\[\e[1;37m\]'
+R='\[\e[2;31m\]'
+G='\[\e[0;32m\]'
+B='\[\e[0;34m\]'
+RESET='\[\e[1;0m\]'
+LASTCOMMAND='\[\e[0;33m\]\# $(if [[ $? == 0 ]]; then echo "\[\033[01;32m\]\342\234\223"; else echo "\[\033[01;31m\]\342\234\227"; fi)'
+BRANCH=' \[\033[00;93m\]$(git_status)\[\033[00m\]'
 if [ `whoami` == 'root' ]; then
-  PS1="\[\e[0;31m\][\[\e[0;33m\]\# $(if [[ $? == 0 ]]; then echo "\[\033[01;32m\]\342\234\223"; else echo "\[\033[01;31m\]\342\234\227"; fi)\[\e[1;37m\]|\[\e[0;31m\]\u\[\e[1;37m\]|\[\e[0;34m\]\w\[\e[1;36m\]\[\e[0;31m\]]\[\e[1;0m\]:"
+  PS1="$R[$LASTCOMMAND$W|$R\u$W|$B\w$R]$BRANCH$RESET:"
 else
-  PS1="\[\e[0;32m\][\[\e[0;33m\]\# $(if [[ $? == 0 ]]; then echo "\[\033[01;32m\]\342\234\223"; else echo "\[\033[01;31m\]\342\234\227"; fi)\[\e[1;37m\]|\[\e[1;32m\]\u\[\e[1;37m\]|\[\e[0;34m\]\w\[\e[1;36m\]\[\e[0;32m\]]\[\e[1;0m\]:"
+  PS1="$G[$LASTCOMMAND$W|$G\u$W|$B\w$G]$BRANCH$RESET:"
 fi
+
+# Add .scripts to path
 PATH=$PATH':/sbin:~/.scripts'
 
 # Source global definitions
