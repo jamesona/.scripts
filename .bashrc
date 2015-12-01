@@ -28,8 +28,28 @@ if [ -f /etc/bashrc ]; then
         . /etc/bashrc
 fi
 
+# alter the default colors to make them a bit prettier
+echo -en "\e]P0000000" #black        #1B1B1D1D1E1E
+echo -en "\e]P1D75F5F" #darkred      #F9F926267272
+echo -en "\e]P287AF5F" #darkgreen    #8282B4B41414
+echo -en "\e]P3D7AF87" #brown        #FDFD97971F1F
+echo -en "\e]P48787AF" #darkblue     #5656C2C2D6D6
+echo -en "\e]P5BD53A5" #darkmagenta  #8C8C5454FEFE
+echo -en "\e]P65FAFAF" #darkcyan     #464654545757
+echo -en "\e]P7E5E5E5" #lightgrey    #CCCCCCCCC6C6
+echo -en "\e]P82B2B2B" #darkgrey     #505053535454
+echo -en "\e]P9E33636" #red          #FFFF59599595
+echo -en "\e]PA98E34D" #green        #B6B6E3E35454
+echo -en "\e]PBFFD75F" #yellow       #FEFEEDED6C6C
+echo -en "\e]PC7373C9" #blue         #8C8CEDEDFFFF
+echo -en "\e]PDD633B2" #magenta      #9E9E6F6FFEFE
+echo -en "\e]PE44C9C9" #cyan         #89899C9CA1A1
+echo -en "\e]PFFFFFFF" #white        #F8F8F8F8F2F2
+clear #for background artifacting
+
+
 ## colorize ls
-alias ls='ls --color'
+ls --color=al > /dev/null 2>&1 && alias ls='ls -F --color=al' || alias ls='ls -G'
 
 ## color pallette
 LS_COLORS=''
