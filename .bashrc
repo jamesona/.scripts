@@ -18,23 +18,26 @@ if ! shopt -oq posix; then
 fi
 
 git_status() {
-  printf `git rev-parse --abbrev-ref HEAD 2> /dev/null`
-  CHANGES=$((`git status | grep -0 'modified\|deleted' | wc -l` + `git ls-files --others --exclude-standard | wc -l`))
-  if [ $CHANGES -gt 0 ]; then
-    printf "[$CHANGES]"
+  BRANCH=`git rev-parse --abbrev-ref HEAD 2> /dev/null`
+  if ! [ -z $BRANCH ]; then
+    printf "$W|$Y$BRANCH"
+    CHANGES=$((`git status | grep -0 'modified\|deleted' | wc -l` + `git ls-files --others --exclude-standard | wc -l`))
+    if [ $CHANGES -gt 0 ]; then
+      printf "($CHANGES)"
+    fi
   fi
 }
-W='\[\e[1;37m\]'
-R='\[\e[2;31m\]'
-G='\[\e[0;32m\]'
-B='\[\e[0;34m\]'
-RESET='\[\e[1;0m\]'
+W='$(printf "\[\e[1;37m\]")'
+R='$(printf "\[\e[2;31m\]")'
+G='$(printf "\[\e[0;32m\]")'
+B='$(printf "\[\e[0;34m\]")'
+Y='$(printf "\[\e[0;93m\]")'
+RESET='$(printf "\[\e[1;0m\]")'
 LASTCOMMAND='\[\e[0;33m\]\# $(if [[ $? == 0 ]]; then echo "\[\033[01;32m\]\342\234\223"; else echo "\[\033[01;31m\]\342\234\227"; fi)'
-BRANCH=' \[\033[00;93m\]$(git_status)\[\033[00m\]'
 if [ `whoami` == 'root' ]; then
-  PS1="$R[$LASTCOMMAND$W|$R\u$W|$B\w$R]$BRANCH$RESET:"
+  PS1="$R[$LASTCOMMAND$W|$R\u$W|$B\w$(git_status)$R]$RESET:"
 else
-  PS1="$G[$LASTCOMMAND$W|$G\u$W|$B\w$G]$BRANCH$RESET:"
+  PS1="$G[$LASTCOMMAND$W|$G\u$W|$B\w$(git_status)$G]$RESET:"
 fi
 
 # Add .scripts to path
