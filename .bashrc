@@ -1,7 +1,4 @@
-#bashrc
-# load cloudrc for the first time
-# . <(curl -sS https://raw.githubusercontent.com/jamesona/.scripts/master/.bashrc)
-
+# bashrc
 # Create the link for the imported bashrc
 if ! [ -L ~/.bashrc ]; then
   rm ~/.bashrc
@@ -49,24 +46,181 @@ if [ -f /etc/bashrc ]; then
         . /etc/bashrc
 fi
 
+
+
+## aliases
+
+alias ll='ls -lah'
+alias r='source ~/.bashrc;reset'
+alias ip="wget -q -O - checkip.dyndns.org | sed -e 's/[^[:digit:]|.]//g'"
+alias lso="ls -alG | awk '{k=0;for(i=0;i<=8;i++)k+=((substr(\$1,i+2,1)~/[rwx]/)*2^(8-i));if(k)printf(\" %0o \",k);print}'"
+
+
+## functions
+
+togglewindow() {
+# toggleconfig 0x01600001 1
+  if grep -q ^"# toggleconfig" ~/.scripts/.bashrc; then
+    READ=`grep ^"# toggleconfig" ~/.scripts/.bashrc`
+    WINDOWID=`echo $READ | cut -d' ' -f 3`
+    WINDOWVISIBLE=`echo $READ | cut -d' ' -f 4`
+  else
+    WINDOWID=`\
+      wmctrl -l |\
+      tr -s ' ' |\
+      cut -f1,4- -d' ' |\
+      sed 's/\([a-z0-9]\{10\}\) \(.*\)/\1\n"\2"/g' |\
+      zenity --list --title='Select Window' --width=600 --height=400 --column=ID --column='Window Title' 2>/dev/null |\
+      cut -d'|' -f 1\
+    `
+    WINDOWVISIBLE=1
+    sed "s/^togglewindow() {/togglewindow() {\n# toggleconfig $WINDOWID $WINDOWVISIBLE/" ~/.scripts/.bashrc > ~/windowtmpfile
+    cat ~/windowtmpfile > ~/.scripts/.bashrc
+    rm ~/windowtmpfile
+  fi
+
+  if [ $WINDOWVISIBLE -eq 1 ]; then
+    # It's visible, hide it
+    wmctrl -i -r $WINDOWID -b remove,above
+    wmctrl -i -r $WINDOWID -b add,hidden,below
+    sed "s/^\(# toggleconfig .\{10\} \)[0-9]/\10/" ~/.scripts/.bashrc > ~/windowtmpfile
+    cat ~/windowtmpfile > ~/.scripts/.bashrc
+    rm ~/windowtmpfile
+  else
+    # It's not visible, show it
+    wmctrl -i -r $WINDOWID -b remove,hidden,below
+    wmctrl -i -r $WINDOWID
+    wmctrl -i -r $WINDOWID -b add,above
+    sed "s/^\(# toggleconfig .\{10\} \)[0-9]/\11/" ~/.scripts/.bashrc > ~/windowtmpfile
+    cat ~/windowtmpfile > ~/.scripts/.bashrc
+    rm ~/windowtmpfile
+  fi
+}
+syncscripts() {
+  CD=$(pwd)
+  git --version > /dev/null 2>&1 || { echo >&2 "Git isn't installed... Aborting"; exit 1; }
+  cd ~/.scripts
+  git pull
+  git commit -am"autosync $(date)"
+  git push
+  cd $CD
+  source ~/.bashrc
+}
+
+fman(){ man $@ | gedit;}
+
+gkill(){ for p in `pgrep $@`; do kill $p; done;}
+
+countmail(){ zenity --info --text=$(zenity --text-info --editable --title="paste in exim log" | grep "<=" | wc -l)" emails sent";}
+
+countspam(){ 
+if [ -z $@ ]; then dom=$(zenity --entry --text "enter domains, separated by |");else dom=$@;fi
+list=$(zenity --text-info --editable --title="paste in exim log" | 
+egrep -o "<=.{1,30}@($dom)" | sort | uniq -c | sort -nr | sed -e 's/\(\d+ <=\)/\n\1/')
+echo "$list" | zenity --text-info --title "Sending Totals" &
+}
+
+uptime() {
+_time=$(awk -F '.' '{print $1}' /proc/uptime)
+`printf "$_time\n" | egrep "[^0-9]" 1>/dev/null 2>&1`
+if   [ $? != 1 ];then
+     printf "the arg passed to the script contains\n"
+     printf "non-numerical characters, i'm exiting\n"
+     exit 98
+fi
+   _days=`printf "scale=0;$_time / 86400\n" | bc -l`
+   _hours=`printf "scale=0;($_time / 3600) - ($_days * 24)\n"  | bc -l `
+   _minutes=`printf "scale=0;($_time / 60) - ($_days * 1440) - ($_hours * 60)\n" | bc -l`
+   _seconds=`printf "scale=0;$_time %% 60\n" | bc -l`
+printf "${_days:-0}D ${_hours:-0}H "
+printf "${_minutes:-0}M ${_seconds:-0}S\n"
+}
+
+pagespeed(){
+for i in ${@}; do
+    local site=$1
+    echo $site
+    echo ${site} | sed -n 's/./-/gp'
+    curl -w '
+    Lookup time:\t%{time_namelookup} s
+    Connect time:\t%{time_connect} s
+    Pre-transfer time:\t%{time_pretransfer} s
+    Time to first packet:\t%{time_starttransfer} s
+    Size download:\t%{size_download} bytes
+    Speed download:\t%{speed_download} bytes/s
+
+    Total time:\t%{time_total} s
+    ' -o /dev/null -s $site
+    echo
+done
+}
+progress(){
+    [[ -z $1 || -z $2 || -z $3 ]] && exit  # on empty param...
+
+    percent=$3
+    completed=$(( $percent / 2 ))`
+    remaining=$(( 50 - $completed ))
+
+    echo -ne "\r\t["
+    printf "%0.s=" `seq $completed`
+    echo -n ">"
+    [[ $remaining != 0 ]] && printf "%0.s." `seq $remaining`
+    echo -n "] $percent% ($2)  "
+}
+typewriter(){
+    text="$1"
+    if [[ -z $2 ]];then  delay=0.01
+    else delay="$2"; fi
+    for i in $(seq 0 $(expr length "${text}")) ; do
+        echo -ne "${text:$i:1}"
+        sleep ${delay}
+    done
+}
+colors() {
+  local fgc bgc vals seq0
+
+  printf "Color escapes are %s\n" '\e[${value};...;${value}m'
+  printf "Values 30..37 are \e[33mforeground colors\e[m\n"
+  printf "Values 40..47 are \e[43mbackground colors\e[m\n"
+  printf "Value  1 gives a  \e[1mbold-faced look\e[m\n\n"
+
+  # foreground colors
+  for fgc in {30..37}; do
+    # background colors
+    for bgc in {40..47}; do
+      fgc=${fgc#37} # white
+      bgc=${bgc#40} # black
+
+      vals="${fgc:+$fgc;}${bgc}"
+      vals=${vals%%;}
+
+      seq0="${vals:+\e[${vals}m}"
+      printf "  %-9s" "${seq0:-(default)}"
+      printf " ${seq0}TEXT\e[m"
+      printf " \e[${vals:+${vals+$vals;}}1mBOLD\e[m"
+    done
+    echo; echo
+  done
+}
+
 # alter the default colors to make them a bit prettier
-echo -en "\e]P0000000" #black        #1B1B1D1D1E1E
-echo -en "\e]P1D75F5F" #darkred      #F9F926267272
-echo -en "\e]P287AF5F" #darkgreen    #8282B4B41414
-echo -en "\e]P3D7AF87" #brown        #FDFD97971F1F
-echo -en "\e]P48787AF" #darkblue     #5656C2C2D6D6
-echo -en "\e]P5BD53A5" #darkmagenta  #8C8C5454FEFE
-echo -en "\e]P65FAFAF" #darkcyan     #464654545757
-echo -en "\e]P7E5E5E5" #lightgrey    #CCCCCCCCC6C6
-echo -en "\e]P82B2B2B" #darkgrey     #505053535454
-echo -en "\e]P9E33636" #red          #FFFF59599595
-echo -en "\e]PA98E34D" #green        #B6B6E3E35454
-echo -en "\e]PBFFD75F" #yellow       #FEFEEDED6C6C
-echo -en "\e]PC7373C9" #blue         #8C8CEDEDFFFF
-echo -en "\e]PDD633B2" #magenta      #9E9E6F6FFEFE
-echo -en "\e]PE44C9C9" #cyan         #89899C9CA1A1
-echo -en "\e]PFFFFFFF" #white        #F8F8F8F8F2F2
-clear #for background artifacting
+#echo -en "\e]P01B1D1E" #black      
+#echo -en "\e]P1F92672" #darkred    
+#echo -en "\e]P282B414" #darkgreen  
+#echo -en "\e]P3FD971F" #brown      
+#echo -en "\e]P456C2D6" #darkblue   
+#echo -en "\e]P58C54FE" #darkmagenta
+#echo -en "\e]P6465457" #darkcyan   
+#echo -en "\e]P7CCCCC6" #lightgrey  
+#echo -en "\e]P8505354" #darkgrey   
+#echo -en "\e]P9FF5995" #red        
+#echo -en "\e]PAB6E354" #green      
+#echo -en "\e]PBFEED6C" #yellow     
+#echo -en "\e]PC8CEDFF" #blue       
+#echo -en "\e]PD9E6FFE" #magenta    
+#echo -en "\e]PE899CA1" #cyan       
+#echo -en "\e]PFF8F8F2" #white      
+#clear #for background artifacting
 
 
 ## colorize ls
@@ -198,121 +352,4 @@ LS_COLORS=$LS_COLORS:'*.oga=00;36'
 LS_COLORS=$LS_COLORS:'*.spx=00;36'
 LS_COLORS=$LS_COLORS:'*.xspf=00;36'
 
-export LS_COLORS
-
-
-## aliases
-
-alias ll='ls -lah'
-alias r='source ~/.bashrc;reset'
-alias ip="wget -q -O - checkip.dyndns.org | sed -e 's/[^[:digit:]|.]//g'"
-alias lso="ls -alG | awk '{k=0;for(i=0;i<=8;i++)k+=((substr(\$1,i+2,1)~/[rwx]/)*2^(8-i));if(k)printf(\" %0o \",k);print}'"
-
-
-## functions
-syncscripts() {
-  CD=$(pwd)
-  git --version > /dev/null 2>&1 || { echo >&2 "Git isn't installed... Aborting"; exit 1; }
-  cd ~/.scripts
-  git pull
-  git commit -am"autosync $(date)"
-  git push
-  cd $CD
-  source ~/.bashrc
-}
-
-fman(){ man $@ | gedit;}
-
-gkill(){ for p in `pgrep $@`; do kill $p; done;}
-
-countmail(){ zenity --info --text=$(zenity --text-info --editable --title="paste in exim log" | grep "<=" | wc -l)" emails sent";}
-
-countspam(){ 
-if [ -z $@ ]; then dom=$(zenity --entry --text "enter domains, separated by |");else dom=$@;fi
-list=$(zenity --text-info --editable --title="paste in exim log" | 
-egrep -o "<=.{1,30}@($dom)" | sort | uniq -c | sort -nr | sed -e 's/\(\d+ <=\)/\n\1/')
-echo "$list" | zenity --text-info --title "Sending Totals" &
-}
-
-uptime() {
-_time=$(awk -F '.' '{print $1}' /proc/uptime)
-`printf "$_time\n" | egrep "[^0-9]" 1>/dev/null 2>&1`
-if   [ $? != 1 ];then
-     printf "the arg passed to the script contains\n"
-     printf "non-numerical characters, i'm exiting\n"
-     exit 98
-fi
-   _days=`printf "scale=0;$_time / 86400\n" | bc -l`
-   _hours=`printf "scale=0;($_time / 3600) - ($_days * 24)\n"  | bc -l `
-   _minutes=`printf "scale=0;($_time / 60) - ($_days * 1440) - ($_hours * 60)\n" | bc -l`
-   _seconds=`printf "scale=0;$_time %% 60\n" | bc -l`
-printf "${_days:-0}D ${_hours:-0}H "
-printf "${_minutes:-0}M ${_seconds:-0}S\n"
-}
-
-pagespeed(){
-for i in ${@}; do
-    local site=$1
-    echo $site
-    echo ${site} | sed -n 's/./-/gp'
-    curl -w '
-    Lookup time:\t%{time_namelookup} s
-    Connect time:\t%{time_connect} s
-    Pre-transfer time:\t%{time_pretransfer} s
-    Time to first packet:\t%{time_starttransfer} s
-    Size download:\t%{size_download} bytes
-    Speed download:\t%{speed_download} bytes/s
-
-    Total time:\t%{time_total} s
-    ' -o /dev/null -s $site
-    echo
-done
-}
-progress(){
-    [[ -z $1 || -z $2 || -z $3 ]] && exit  # on empty param...
-
-    percent=$3
-    completed=$(( $percent / 2 ))
-    remaining=$(( 50 - $completed ))
-
-    echo -ne "\r\t["
-    printf "%0.s=" `seq $completed`
-    echo -n ">"
-    [[ $remaining != 0 ]] && printf "%0.s." `seq $remaining`
-    echo -n "] $percent% ($2)  "
-}
-typewriter(){
-    text="$1"
-    if [[ -z $2 ]];then  delay=0.01
-    else delay="$2"; fi
-    for i in $(seq 0 $(expr length "${text}")) ; do
-        echo -ne "${text:$i:1}"
-        sleep ${delay}
-    done
-}
-colors() {
-	local fgc bgc vals seq0
-
-	printf "Color escapes are %s\n" '\e[${value};...;${value}m'
-	printf "Values 30..37 are \e[33mforeground colors\e[m\n"
-	printf "Values 40..47 are \e[43mbackground colors\e[m\n"
-	printf "Value  1 gives a  \e[1mbold-faced look\e[m\n\n"
-
-	# foreground colors
-	for fgc in {30..37}; do
-		# background colors
-		for bgc in {40..47}; do
-			fgc=${fgc#37} # white
-			bgc=${bgc#40} # black
-
-			vals="${fgc:+$fgc;}${bgc}"
-			vals=${vals%%;}
-
-			seq0="${vals:+\e[${vals}m}"
-			printf "  %-9s" "${seq0:-(default)}"
-			printf " ${seq0}TEXT\e[m"
-			printf " \e[${vals:+${vals+$vals;}}1mBOLD\e[m"
-		done
-		echo; echo
-	done
-}
+export LS_COLORS;
