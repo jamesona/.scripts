@@ -1,0 +1,37 @@
+#/bin/bash
+# toggleconfig 0x01600001 0
+if grep -q ^"# toggleconfig" ~/.scripts/windowtoggle; then
+  READ=`grep ^"# toggleconfig" ~/.scripts/windowtoggle`
+  WINDOWID=`echo $READ | cut -d' ' -f 3`
+  WINDOWVISIBLE=`echo $READ | cut -d' ' -f 4`
+else
+  WINDOWID=`\
+    wmctrl -l |\
+    tr -s ' ' |\
+    cut -f1,4- -d' ' |\
+    sed 's/\([a-z0-9]\{10\}\) \(.*\)/\1\n"\2"/g' |\
+    zenity --list --title='Select Window' --width=600 --height=400 --column=ID --column='Window Title' 2>/dev/null |\
+    cut -d'|' -f 1\
+  `
+  WINDOWVISIBLE=1
+  sed "s/^#/bin/bash/#/bin/bash\n# toggleconfig $WINDOWID $WINDOWVISIBLE/" ~/.scripts/windowtoggle > ~/windowtmpfile
+  cat ~/windowtmpfile > ~/.scripts/windowtoggle
+  rm ~/windowtmpfile
+fi
+
+if [ $WINDOWVISIBLE -eq 1 ]; then
+  # It's visible, hide it
+  wmctrl -i -r $WINDOWID -b remove,above
+  wmctrl -i -r $WINDOWID -b add,hidden,below
+  sed "s/^\(# toggleconfig .\{10\} \)[0-9]/\10/" ~/.scripts/windowtoggle > ~/windowtmpfile
+  cat ~/windowtmpfile > ~/.scripts/windowtoggle
+  rm ~/windowtmpfile
+else
+  # It's not visible, show it
+  wmctrl -i -r $WINDOWID -b remove,hidden,below
+  wmctrl -i -r $WINDOWID
+  wmctrl -i -r $WINDOWID -b add,above
+  sed "s/^\(# toggleconfig .\{10\} \)[0-9]/\11/" ~/.scripts/windowtoggle > ~/windowtmpfile
+  cat ~/windowtmpfile > ~/.scripts/windowtoggle
+  rm ~/windowtmpfile
+fi
