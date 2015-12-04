@@ -14,7 +14,7 @@ else
     cut -d'|' -f 1\
   `
   WINDOWVISIBLE=1
-  sed "s/^#/bin/bash/#/bin/bash\n# toggleconfig $WINDOWID $WINDOWVISIBLE/" ~/.scripts/windowtoggle > ~/windowtmpfile
+  sed "s/^#\/bin\/bash/#\/bin\/bash\n# toggleconfig $WINDOWID $WINDOWVISIBLE/" ~/.scripts/windowtoggle > ~/windowtmpfile
   cat ~/windowtmpfile > ~/.scripts/windowtoggle
   rm ~/windowtmpfile
 fi
