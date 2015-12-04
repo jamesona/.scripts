@@ -57,45 +57,6 @@ alias lso="ls -alG | awk '{k=0;for(i=0;i<=8;i++)k+=((substr(\$1,i+2,1)~/[rwx]/)*
 
 
 ## functions
-
-togglewindow() {
-# toggleconfig 0x01600001 1
-  if grep -q ^"# toggleconfig" ~/.scripts/.bashrc; then
-    READ=`grep ^"# toggleconfig" ~/.scripts/.bashrc`
-    WINDOWID=`echo $READ | cut -d' ' -f 3`
-    WINDOWVISIBLE=`echo $READ | cut -d' ' -f 4`
-  else
-    WINDOWID=`\
-      wmctrl -l |\
-      tr -s ' ' |\
-      cut -f1,4- -d' ' |\
-      sed 's/\([a-z0-9]\{10\}\) \(.*\)/\1\n"\2"/g' |\
-      zenity --list --title='Select Window' --width=600 --height=400 --column=ID --column='Window Title' 2>/dev/null |\
-      cut -d'|' -f 1\
-    `
-    WINDOWVISIBLE=1
-    sed "s/^togglewindow() {/togglewindow() {\n# toggleconfig $WINDOWID $WINDOWVISIBLE/" ~/.scripts/.bashrc > ~/windowtmpfile
-    cat ~/windowtmpfile > ~/.scripts/.bashrc
-    rm ~/windowtmpfile
-  fi
-
-  if [ $WINDOWVISIBLE -eq 1 ]; then
-    # It's visible, hide it
-    wmctrl -i -r $WINDOWID -b remove,above
-    wmctrl -i -r $WINDOWID -b add,hidden,below
-    sed "s/^\(# toggleconfig .\{10\} \)[0-9]/\10/" ~/.scripts/.bashrc > ~/windowtmpfile
-    cat ~/windowtmpfile > ~/.scripts/.bashrc
-    rm ~/windowtmpfile
-  else
-    # It's not visible, show it
-    wmctrl -i -r $WINDOWID -b remove,hidden,below
-    wmctrl -i -r $WINDOWID
-    wmctrl -i -r $WINDOWID -b add,above
-    sed "s/^\(# toggleconfig .\{10\} \)[0-9]/\11/" ~/.scripts/.bashrc > ~/windowtmpfile
-    cat ~/windowtmpfile > ~/.scripts/.bashrc
-    rm ~/windowtmpfile
-  fi
-}
 syncscripts() {
   CD=$(pwd)
   git --version > /dev/null 2>&1 || { echo >&2 "Git isn't installed... Aborting"; exit 1; }
