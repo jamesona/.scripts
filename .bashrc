@@ -68,6 +68,10 @@ syncscripts() {
   source ~/.bashrc
 }
 
+userprocs() {
+ ps aux | awk '/'$1'/ { print $2}'
+}
+
 fman(){ man $@ | gedit;}
 
 gkill(){ for p in `pgrep $@`; do kill $p; done;}
