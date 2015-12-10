@@ -74,7 +74,7 @@ function switchToLocal {
 
 function commitChanges {
 	echo "Adding, committing, merging into dev, pushing dev, checking out '$BRANCH' again"
-	git add --all && git commit -m "$MESSAGE" && git push && git checkout dev && git pull && git merge $BRANCH && git push && git checkout $BRANCH
+	git add --all && git commit -m "$MESSAGE" && git push && git checkout dev && git pull && git merge $BRANCH -m"Merging $MESSAGE" && git push && git checkout $BRANCH
 	git config --local `escapeBranch`.commitNum $((`git config --local $(escapeBranch).commitNum` + 1))
 }
 

@@ -317,4 +317,5 @@ LS_COLORS=$LS_COLORS:'*.oga=00;36'
 LS_COLORS=$LS_COLORS:'*.spx=00;36'
 LS_COLORS=$LS_COLORS:'*.xspf=00;36'
 
-export LS_COLORS;
+export LS_COLORS
+clear

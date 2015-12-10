@@ -1,12 +1,54 @@
 #/bin/bash
+create_nginx() {
+	directory=$1
+	serverconfig=echo <<EOF
+server {
+	server_name $directory;
+	listen 80;
+	listen [::]:80;
+	root /var/www/$directory;
+	index index.php index.html index.htm;
+
+	# pass the PHP scripts to FastCGI server listening on (...)
+	#
+	location ~ \.php$ {
+			try_files $uri =404;
+			fastcgi_split_path_info ^(.+\.php)(/.+)$;
+			# NOTE: You should have "cgi.fix_pathinfo = 0;" in php.ini
+
+			# With php5-cgi alone:
+			#fastcgi_pass 127.0.0.1:9000;
+			# With php5-fpm:
+			fastcgi_pass unix:/var/run/php5-fpm.sock;
+			fastcgi_index index.php;
+			include fastcgi_params;
+	}
+
+	location /$directory/ {
+		try_files $uri $uri/ =404;
+	}
+
+}
+EOF
+	touch /etc/nginx/sites-avialable/$directory
+	echo $serverconfig > /etc/nginx/sites-avialable/$directory
+	ln -s /etc/nginx/sites-available/$directory /etc/nginx/sites-enabled/$directory
+	service nginx reload
+}
+
+directories=`find /var/www -maxdepth 1 -type d | sed -n '1!p' | sed 's-/var/www/--g'`
 
 # populate added directories
-for directory in `find /var/www -maxdepth 1 -type d | sed -n '1!p' | sed 's-/var/www/--g'`; do 
+for directory in $direcotries; do 
   site=$(echo -e "127.0.0.1\t$directory")
 
   grep -Fxq "$site" /etc/hosts
   if [ $? -eq 0 ]; then
     sed -i "1i$site" /etc/hosts
+	# create nginx server if not already existing
+	if [ ! -f /etc/nginx/sites-avialable/$directory ]; then
+		create_nginx $directory
+	fi
   fi
 done
 
@@ -14,5 +56,9 @@ done
 for entry in `grep -o "127.0.0.1[[:space:]][[:alnum:]]\+" /etc/hosts | sed 's/127.0.0.1\t//'`; do
 	if [ ! -d /var/www/$entry ]; then
 		sed "/$entry/d" /etc/hosts
+		# remove unnecessary nginx servers
+		rm /etc/nginx/sites-avialable/$entry
+		rm /etc/nginx/sites-enabled/$entry
 	fi
 done
+
