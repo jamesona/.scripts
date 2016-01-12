@@ -207,9 +207,9 @@ LS_COLORS=$LS_COLORS:'ca=30;41'     # file with capability
 LS_COLORS=$LS_COLORS:'do=01;35'     # door
 LS_COLORS=$LS_COLORS:'su=37;41'     # setuid
 LS_COLORS=$LS_COLORS:'sg=30;43'     # setgid
-LS_COLORS=$LS_COLORS:'ow=34;40'     # directory is other writable
-LS_COLORS=$LS_COLORS:'tw=30;40'     # directory is sticky and other writable
-LS_COLORS=$LS_COLORS:'st=37;44'     # directory is sticky
+LS_COLORS=$LS_COLORS:'ow=40;34'     # directory is other writable
+LS_COLORS=$LS_COLORS:'tw=46;30'     # directory is sticky and other writable
+LS_COLORS=$LS_COLORS:'st=44;37'     # directory is sticky
 LS_COLORS=$LS_COLORS:'*.tar=01;31'
 LS_COLORS=$LS_COLORS:'*.tgz=01;31'
 LS_COLORS=$LS_COLORS:'*.arc=01;31'
