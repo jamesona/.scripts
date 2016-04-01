@@ -39,7 +39,8 @@ else
 fi
 
 # Add .scripts to path
-PATH=$PATH':/sbin:~/.scripts'
+PATH=$PATH':/sbin'
+PATH=$PATH':~/.scripts'
 
 # Source global definitions
 if [ -f /etc/bashrc ]; then
