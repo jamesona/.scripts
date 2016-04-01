@@ -168,6 +168,10 @@ colors() {
   done
 }
 
+wftp(){
+ wget -m ftp://$1 -o $2 --ask-password
+}
+
 # alter the default colors to make them a bit prettier
 echo -en "\e]P01B1D1E" #black      
 echo -en "\e]P1F92672" #darkred    
