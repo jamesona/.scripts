@@ -1,0 +1,2 @@
+#/bin/bash
+vagrant ssh -c ifconfig $1 2> /dev/null | grep 'inet addr:192.168.' | cut -d':' -f2 | cut -d' ' -f1

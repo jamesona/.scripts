@@ -41,7 +41,7 @@ fi
 # Add .scripts to path
 PATH=$PATH':/sbin'
 PATH=$PATH':~/.scripts'
-
+PATH=$PATH':/usr/local/nvm/v5.4.1/bin'
 # Source global definitions
 if [ -f /etc/bashrc ]; then
         . /etc/bashrc
@@ -55,7 +55,7 @@ alias ll='ls -lah'
 alias r='source ~/.bashrc;reset'
 alias ip="wget -q -O - checkip.dyndns.org | sed -e 's/[^[:digit:]|.]//g'"
 alias lso="ls -alG | awk '{k=0;for(i=0;i<=8;i++)k+=((substr(\$1,i+2,1)~/[rwx]/)*2^(8-i));if(k)printf(\" %0o \",k);print}'"
-
+alias vssh="vagrant ssh $@"
 
 ## functions
 syncscripts() {
