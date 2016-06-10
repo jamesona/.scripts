@@ -42,6 +42,8 @@ fi
 PATH=$PATH':/sbin'
 PATH=$PATH':~/.scripts'
 PATH=$PATH':/usr/local/nvm/v5.4.1/bin'
+PATH=$PATH':/home/jameson/MonkeyXFree84f/bin'
+
 # Source global definitions
 if [ -f /etc/bashrc ]; then
         . /etc/bashrc
@@ -324,3 +326,9 @@ LS_COLORS=$LS_COLORS:'*.xspf=00;36'
 
 export LS_COLORS
 clear
+
+### Added by the Heroku Toolbelt
+export PATH="/usr/local/heroku/bin:$PATH"
+
+# added by travis gem
+[ -f /home/jameson/.travis/travis.sh ] && source /home/jameson/.travis/travis.sh
