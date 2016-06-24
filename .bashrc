@@ -44,6 +44,9 @@ PATH=$PATH':~/.scripts'
 PATH=$PATH':/usr/local/nvm/v5.4.1/bin'
 PATH=$PATH':/home/jameson/MonkeyXFree84f/bin'
 
+# Suppress nvm errors...
+unset NPM_CONFIG_PREFIX
+
 # Source global definitions
 if [ -f /etc/bashrc ]; then
         . /etc/bashrc
@@ -332,3 +335,6 @@ export PATH="/usr/local/heroku/bin:$PATH"
 
 # added by travis gem
 [ -f /home/jameson/.travis/travis.sh ] && source /home/jameson/.travis/travis.sh
+
+export NVM_DIR="/home/jameson/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
