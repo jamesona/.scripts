@@ -1,0 +1,10 @@
+#!/bin/bash
+
+rm -rf ~/git/build/trapeze
+cd ~/git/source/circus-quacktape
+git pull
+cp ~/git/source/circus-quacktape/lib/clown/renderCobalt.js ~/git/build/ringmaster/quacktape/lib/clown/renderCobalt.js
+cd ~/git/build/ringmaster
+node app/test-trapeze.js
+cd ~/git/build/trapeze
+node app/exec.js
