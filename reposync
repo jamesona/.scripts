@@ -24,12 +24,6 @@ def main(argv):
 		elif opt in ("-s"):
 			source = path.abspath( path.expanduser(arg) )
 
-	print( "Using prefix {0}, branch {1}, and directory {2}...".format(
-		tf.bold.info(prefix),
-		tf.bold.info(branch),
-		tf.bold.info(source)
-	))
-
 	if not path.isdir(source):
 		print(tf.error('ERROR: directory "{0}" does not exist'.format(source)))
 		exit(2)
@@ -45,9 +39,8 @@ def main(argv):
 			'git pull'
 		]
 
-		print( '\nUpdating {0}...'.format( tf.bold.info(repo) ) )		
 		chdir(dirpath)
-		print( 'Switching to branch {0}'.format( tf.bold.info(branch) ) )
+		print( '\nUpdating {0} on branch {1}'.format( tf.bold.info(repo), tf.bold.info(branch) ) )		
 
 		for cmd in commands:
 			p = run(cmd, shell=True, universal_newlines=True, stdout=pipe, stderr=pipe)
