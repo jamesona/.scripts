@@ -33,6 +33,13 @@ if [ -z "$debian_chroot" ] && [ -r /etc/debian_chroot ]; then
     debian_chroot=$(cat /etc/debian_chroot)
 fi
 
+# Define the function we'll use for imports
+load() {
+  if [ -f $1 ]; then
+    . $1
+  fi
+}
+
 # Load global definitions
 load /etc/bashrc
 
@@ -60,11 +67,6 @@ PATH=$PATH':/usr/local/nvm/v5.4.1/bin'
 # Suppress nvm errors...
 unset NPM_CONFIG_PREFIX
 
-load() {
-  if [ -f $1 ]; then
-    . $1
-  fi
-}
 
 ### Added by the Heroku Toolbelt
 export PATH="/usr/local/heroku/bin:$PATH"
