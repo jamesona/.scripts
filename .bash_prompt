@@ -1,0 +1,13 @@
+W='$(printf "\[\e[1;37m\]")'
+R='$(printf "\[\e[2;31m\]")'
+G='$(printf "\[\e[0;32m\]")'
+B='$(printf "\[\e[0;34m\]")'
+Y='$(printf "\[\e[0;93m\]")'
+RESET='$(printf "\[\e[1;0m\]")'
+LASTCOMMAND='\[\e[0;33m\]\# $(if [[ $? == 0 ]]; then echo "\[\033[01;32m\]\342\234\223"; else echo "\[\033[01;31m\]\342\234\227"; fi)'
+BRANCH='$(git_status)'
+if [ `whoami` == 'root' ]; then
+  PS1="$R[$LASTCOMMAND$W|$R\u$W|$B\w$BRANCH$R]$RESET:"
+else
+  PS1="$G[$LASTCOMMAND$W|$G\u$W|$B\w$BRANCH$G]$RESET:"
+fi
