@@ -1,15 +1,14 @@
 #!/bin/bash
 THEME=$1
 VERSION=$2
-UPSALE_STRUCTURE=$3
-UPSALE_THEME=$4
+UPSALE_THEME=$3
 
 rm -rf ~/git/build/$THEME/$VERSION
 cd ~/git/source/circus-quacktape
 git pull
 cp ~/git/source/circus-quacktape/lib/clown/renderCobalt.js ~/git/build/ringmaster/quacktape/lib/clown/renderCobalt.js
 cd ~/git/build/ringmaster
-node app/test-clown.js $THEME $VERSION $UPSALE_STRUCTURE $UPSALE_THEME
+node app/test-clown.js $THEME $VERSION $UPSALE_THEME
 cp ~/git/build/auth.txt ~/git/build/$THEME/auth.txt
 cp ~/git/build/cert.pem ~/git/build/$THEME/cert.pem
 cp ~/git/build/key.pem ~/git/build/$THEME/key.pem

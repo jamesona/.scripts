@@ -1,10 +1,26 @@
 #!/bin/bash
 
-rm -rf ~/git/build/trapeze
+# if the directory we're building to exists, nuke it
+if [ -d /home/$(whoami)/git/build/trapeze ]; then
+	rm -rf ~/git/build/trapeze
+fi
+
+# update quacktape
 cd ~/git/source/circus-quacktape
 git pull
+
+# copy cobalt over to our built ringmaster
 cp ~/git/source/circus-quacktape/lib/clown/renderCobalt.js ~/git/build/ringmaster/quacktape/lib/clown/renderCobalt.js
+
+# move to ringmaster so that node has the correct working directory
 cd ~/git/build/ringmaster
+
+# build trapeze
 node app/test-trapeze.js
+
+
+# open it
 cd ~/git/build/trapeze
+
+# run it
 node app/exec.js
