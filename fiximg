@@ -1,0 +1,2 @@
+#/bin/bash
+find . -maxdepth 10 -type f -regextype posix-extended -regex "^\./.*/[^/]*-[^/]*\.[jpegn]{3,4}$" | sed -e'p' -E -e 's/(\w+)-(\w+\.[jpegn]{3,4})$/\1_\2/g' | xargs -n2 mv

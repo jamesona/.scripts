@@ -3,16 +3,34 @@ THEME=$1
 VERSION=$2
 UPSALE_THEME=$3
 
-rm -rf ~/git/build/$THEME/$VERSION
-cd ~/git/source/circus-quacktape
-git pull
-cp ~/git/source/circus-quacktape/lib/clown/renderCobalt.js ~/git/build/ringmaster/quacktape/lib/clown/renderCobalt.js
-cd ~/git/build/ringmaster
-node app/test-clown.js $THEME $VERSION $UPSALE_THEME
+# remove old build if it exists
+if [ -d /home/$(whoami)/git/build/$THEME ]; then
+	rm -rf ~/git/build/$THEME
+fi
+
+# create the build directory
+mkdir ~/git/build/$THEME
+
+# copy over static assets necessary to start the clown
 cp ~/git/build/auth.txt ~/git/build/$THEME/auth.txt
 cp ~/git/build/cert.pem ~/git/build/$THEME/cert.pem
 cp ~/git/build/key.pem ~/git/build/$THEME/key.pem
 cp ~/git/build/DB.json ~/git/build/$THEME/DB.json
 cp ~/git/build/region.txt ~/git/build/$THEME/region.txt
-cd ~/git/build/$THEME/$VERSION
-node app/exec.js
+
+# update quacktape
+cd ~/git/source/circus-quacktape
+git pull
+
+# copy quacktape  to ringmaster
+cp ~/git/source/circus-quacktape/lib/clown/renderCobalt.js ~/git/build/ringmaster/quacktape/lib/clown/renderCobalt.js
+
+# move to ringmaster and build the clown
+cd ~/git/build/ringmaster
+node app/test-clown.js $THEME $VERSION $UPSALE_THEME
+
+
+# open the build and run
+if [ -d /home/$(whoami)/git/build/$THEME/$VERSION ]; then
+	cd ~/git/build/$THEME/$VERSION && node app/exec.js
+fi
