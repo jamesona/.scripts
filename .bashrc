@@ -62,6 +62,7 @@ load ~/.scripts/.bash_prompt
 # Add .scripts to path
 PATH=$PATH':/sbin'
 PATH=$PATH':~/.scripts'
+PATH=$PATH':~/.ip-scripts'
 PATH=$PATH':/usr/local/nvm/v5.4.1/bin'
 
 # Suppress nvm errors...
