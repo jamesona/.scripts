@@ -112,14 +112,3 @@ colors() {
 wftp(){
  wget -m ftp://$1 -o $2 --ask-password
 }
-
-git_status() {
-  BRANCH=`git rev-parse --abbrev-ref HEAD 2> /dev/null`
-  if ! [ -z $BRANCH ]; then
-    printf "\e[1;37m|\e[0;93m$BRANCH"
-    CHANGES=$((`git status | grep -0 'modified\|deleted' | wc -l` + `git ls-files --others --exclude-standard | wc -l`))
-    if [ $CHANGES -gt 0 ]; then
-      printf "[$CHANGES]"
-    fi
-  fi
-}

@@ -1,13 +1,140 @@
-W='$(printf "\[\e[1;37m\]")'
-R='$(printf "\[\e[2;31m\]")'
-G='$(printf "\[\e[0;32m\]")'
-B='$(printf "\[\e[0;34m\]")'
-Y='$(printf "\[\e[0;93m\]")'
-RESET='$(printf "\[\e[1;0m\]")'
-LASTCOMMAND='\[\e[0;33m\]\# $(if [[ $? == 0 ]]; then echo "\[\033[01;32m\]\342\234\223"; else echo "\[\033[01;31m\]\342\234\227"; fi)'
-BRANCH='$(git_status)'
-if [ `whoami` == 'root' ]; then
-  PS1="$R[$LASTCOMMAND$W|$R\u$W|$B\w$BRANCH$R]$RESET:"
-else
-  PS1="$G[$LASTCOMMAND$W|$G\u$W|$B\w$BRANCH$G]$RESET:"
-fi
+colorize() {
+	local RETURN=''
+	local WHITE=$(printf "\e[1;37m")
+	local RED=$(printf "\e[2;31m")
+	local GREEN=$(printf "\e[0;32m")
+	local BLUE=$(printf "\e[0;34m")
+	local YELLOW=$(printf "\e[0;93m")
+	local ORANGE=$(printf "\e[0;33m")
+	local RESET=$(printf "\e[1;0m")
+	case "$1" in
+	white|WHITE)
+		RETURN=$WHITE
+		;;
+	white|RED)
+		RETURN=$RED
+		;;
+	green|GREEN)
+		RETURN=$GREEN
+		;;
+	blue|BLUE)
+		RETURN=$BLUE
+		;;
+	yellow|YELLOW)
+		RETURN=$YELLOW
+		;;
+	orange|ORANGE)
+		RETURN=$ORANGE
+		;;
+	reset|RESET|*)
+		RETURN=$RESET
+		;;
+	esac
+	if [[ $# -gt 1 ]]; then
+		echo $RETURN$2$RESET
+	else
+		echo $RETURN
+	fi
+}
+
+build_prompt() {
+	# declare stuff
+	local PROMPT='\n'
+	local LEFT_BRACKET=$(colorize green "[")
+	local RIGHT_BRACKET=$(colorize green "]")
+	local USER=$(colorize green "$USER")
+	local DIR=$(colorize blue "\w")
+
+
+	if [ `whoami` == 'root' ]; then
+		# change the green parts red if we're root
+		LEFT_BRACKET='$(colorize red "[")'
+		RIGHT_BRACKET='$(colorize red "]")'
+		USER='$(colorize red "$USER")'
+	fi
+
+
+	# add left bracket
+	PROMPT="$LEFT_BRACKET"
+
+	# add last command number
+	local LAST_NUMBER=$(colorize orange "\#")
+	PROMPT="$PROMPT$LAST_NUMBER"
+
+	# add last execution time
+	function timer_now {
+		date +%s%N
+	}
+
+	function timer_start {
+		timer_start=${timer_start:-$(timer_now)}
+	}
+
+	function timer_stop {
+		local delta_us=$((($(timer_now) - $timer_start) / 1000))
+		local us=$((delta_us % 1000))
+		local ms=$(((delta_us / 1000) % 1000))
+		local s=$(((delta_us / 1000000) % 60))
+		local m=$(((delta_us / 60000000) % 60))
+		local h=$((delta_us / 3600000000))
+		# Goal: always show around 3 digits of accuracy
+		if ((h > 0)); then timer_show=${h}h${m}m
+		elif ((m > 0)); then timer_show=${m}m${s}s
+		elif ((s >= 10)); then timer_show=${s}.$((ms / 100))s
+		elif ((s > 0)); then timer_show=${s}.$(printf %03d $ms)s
+		elif ((ms >= 100)); then timer_show=${ms}ms
+		elif ((ms > 0)); then timer_show=${ms}.$((us / 100))ms
+		else timer_show=${us}us
+		fi
+		unset timer_start
+	}
+
+	trap 'timer_start' DEBUG
+	PROMPT_COMMAND='build_prompt && timer_stop'
+	
+	PROMPT="$PROMPT$(colorize orange '$(echo -e "\a:${timer_show}")')"
+
+	# add command status
+	if [[ $? == 0 ]]; then
+		PROMPT="$PROMPT $(colorize green $(printf '(\342\234\223)'))"
+	else
+		PROMPT="$PROMPT $(colorize red $(printf '(\342\234\227)'))"
+	fi
+
+	# add user
+	PROMPT="$PROMPT|$USER"
+
+	# add working directory
+	PROMPT="$PROMPT|$DIR"
+
+	# add git info
+	git_status() {
+		local BRANCH=`git rev-parse --abbrev-ref HEAD 2> /dev/null`
+		if ! [ -z $BRANCH ]; then
+			 echo -en "|$(colorize yellow $BRANCH)"
+
+			local CHANGES=$((`git status | grep -0 'modified\|deleted' | wc -l` + `git ls-files --others --exclude-standard | wc -l`))
+			if [ $CHANGES -gt 0 ]; then
+				echo -en "$(colorize yellow "[$CHANGES]")"
+			fi
+		fi
+	}
+	PROMPT="$PROMPT$(git_status)"
+
+	# add right bracket
+	PROMPT="$PROMPT$RIGHT_BRACKET"
+
+	# sterilize colors
+	PROMPT="$PROMPT$(colorize reset)"
+
+	# add newline
+	PROMPT="$PROMPT\n>:"
+
+	# print the prompt; use this if you're enabling PROMPT_COMMAND
+	#echo -e $PROMPT
+
+	# set the PS1 variable; use this if you're not enabling PROMPT_COMMAND
+	PS1=$PROMPT
+}
+
+PROMPT_COMMAND='build_prompt'
