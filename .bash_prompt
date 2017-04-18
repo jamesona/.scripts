@@ -92,7 +92,7 @@ build_prompt() {
 	trap 'timer_start' DEBUG
 	PROMPT_COMMAND='build_prompt && timer_stop'
 	
-	PROMPT="$PROMPT$(colorize orange '$(echo -e "\a:${timer_show}")')"
+	PROMPT="$PROMPT$(colorize orange `echo -e ${timer_show}`)"
 
 	# add command status
 	if [[ $? == 0 ]]; then
