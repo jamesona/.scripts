@@ -1,25 +1,25 @@
 #!/bin/bash
 progress(){
-    [[ -z $1 || -z $2 || -z $3 ]] && exit  # on empty param...
+	[[ -z $1 || -z $2 || -z $3 ]] && exit  # on empty param...
 
-    percent=$3
-    completed=$(( $percent / 2 ))
-    remaining=$(( 50 - $completed ))
+	percent=$3
+	completed=$(( $percent / 2 ))
+	remaining=$(( 50 - $completed ))
 
-    echo -ne "\r\t["
-    printf "%0.s=" `seq $completed`
-    echo -n ">"
-    [[ $remaining != 0 ]] && printf "%0.s." `seq $remaining`
-    echo -n "] $percent% ($2)  "
+	echo -ne "\r\t["
+	printf "%0.s=" `seq $completed`
+	echo -n ">"
+	[[ $remaining != 0 ]] && printf "%0.s." `seq $remaining`
+	echo -n "] $percent% ($2)  "
 }
 wait(){
-    text="$1"
-    delay="$2"
+	text="$1"
+	delay="$2"
 
-    for i in $(seq 0 $(expr length "${text}")) ; do
-        echo -ne "${text:$i:1}"
-        sleep ${delay}
-    done
+	for i in $(seq 0 $(expr length "${text}")) ; do
+		echo -ne "${text:$i:1}"
+		sleep ${delay}
+	done
 }
 echo -ne '\n\t'
 wait 'Welcome to the Aperture Science Customer Care Program!' .01
@@ -48,4 +48,3 @@ echo -ne '\n\t       '
 wait '.....' .8
 wait 'For real though, go fsck yourself.' .03
 echo;sleep 10
-

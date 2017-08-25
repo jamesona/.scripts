@@ -5,14 +5,14 @@ getprocs() {
 }
 
 if [ "$#" -ne 1 ]; then
-  echo "Getting names of bound processes..."
-  echo `getprocs`
+	echo "Getting names of bound processes..."
+	echo `getprocs`
 else
-  echo "Getting processes listening to "$1"..."
-  PROCS=`getprocs $1`
-  if [ -z "$PROCS" ]; then
-    echo "No processes are bound to "$1
-  else
-    echo $PROCS
-  fi
+	echo "Getting processes listening to "$1"..."
+	PROCS=`getprocs $1`
+	if [ -z "$PROCS" ]; then
+		echo "No processes are bound to "$1
+	else
+		echo $PROCS
+	fi
 fi

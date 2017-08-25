@@ -3,9 +3,9 @@
 # Bash shell script for generating self-signed certs. Run this in a folder, as it
 # generates a few files. Large portions of this script were taken from the
 # following artcile:
-# 
+#
 # http://usrportage.de/archives/919-Batch-generating-SSL-certificates.html
-# 
+#
 # Additional alterations by: Brad Landers
 # Date: 2012-01-27
 
@@ -55,12 +55,12 @@ fail_if_error $?
 
 # Generate the CSR
 openssl req \
-    -new \
-    -batch \
-    -subj "$(echo -n "$subj" | tr "\n" "/")" \
-    -key $DOMAIN.key \
-    -out $DOMAIN.csr \
-    -passin pass:$PASSPHRASE
+	-new \
+	-batch \
+	-subj "$(echo -n "$subj" | tr "\n" "/")" \
+	-key $DOMAIN.key \
+	-out $DOMAIN.csr \
+	-passin pass:$PASSPHRASE
 fail_if_error $?
 cp $DOMAIN.key $DOMAIN.key.org
 fail_if_error $?

@@ -43,25 +43,25 @@ load() {
 # Load global definitions
 load /etc/bashrc
 
+# load highlighter
+load ~/.scripts/h.sh
+
 # Load aliases
-load ~/.bash_aliases
-load ~/.scripts/.bash_aliases
+load ~/.scripts/aliases.sh
 
 # Load functions
-load ~/.bash_functions
-load ~/.scripts/.bash_functions
+load ~/.scripts/functions.sh
 
 # Load color settings
-load ~/.bash_colors
-load ~/.scripts/.bash_colors
+load ~/.scripts/colors.sh
 
 # Load prompt
-load ~/.bash_prompt
-load ~/.scripts/.bash_prompt
+load ~/.scripts/prompt.sh
 
 # Add .scripts to path
 PATH=$PATH':/sbin'
 PATH=$PATH':~/.scripts'
+PATH=$PATH':~/.scripts/binaries'
 PATH=$PATH':~/.ip-scripts'
 PATH=$PATH':/usr/local/nvm/v5.4.1/bin'
 

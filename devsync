@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 OPTERR=0
 BRANCH=`git rev-parse --abbrev-ref HEAD`
 
@@ -126,9 +126,9 @@ while getopts uhn:om:rd opt; do
 			{
 				git checkout master
 				git pull
-				git checkout -b $BRANCH 
-				git push origin $BRANCH 
-				git branch --set-upstream-to origin/$BRANCH 
+				git checkout -b $BRANCH
+				git push origin $BRANCH
+				git branch --set-upstream-to origin/$BRANCH
 				git config --local `escapeBranch`.commitNum 1 && git config --local `escapeBranch`.hasPullRequest 0
 			} || {
 				echo "ERROR: Could not set upstream target." >&2
@@ -156,12 +156,12 @@ while getopts uhn:om:rd opt; do
 				echo "ERROR: api request failed." >&2
 				exit 1
 			}
-			
+
 			exit 0
 			;;
 		d)
 			switchToLocal
-			
+
 			if [ "`git status | grep 'nothing to commit'`" = "" ]; then
 				echo "Couldn't delete local branch.  You have uncommitted changes.  Committing them..."
 				commitChanges
@@ -169,11 +169,11 @@ while getopts uhn:om:rd opt; do
 				echo "Otherwise, run 'go -d' again to delete"
 				exit 1
 			fi
-			
+
 			if [ "`git config --local $(escapeBranch).hasPullRequest`" = 0 ]; then
 				echo "Warning: You haven't created any pull requests for this branch."
 			fi
-			
+
 			read -p "Branch to be deleted: '$BRANCH'.  Proceed [y/n]? " -n 1 -r
 			echo
 			if [[ $REPLY =~ ^[Yy]$ ]]; then
@@ -181,7 +181,7 @@ while getopts uhn:om:rd opt; do
 			else
 				echo "Exiting..."
 			fi
-			
+
 			exit 0
 			;;
 		\?)

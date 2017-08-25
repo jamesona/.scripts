@@ -5,8 +5,8 @@ subnet=$1
 declare -a PIDS
 
 for addr in `seq 0 1 255 `; do
-	( ping -c 3 -t 5 192.168.$subnet.$addr > /dev/null 2>&1 && 
-	  echo 192.168.$subnet.$addr is ALIVE ) &
+	( ping -c 3 -t 5 192.168.$subnet.$addr > /dev/null 2>&1 &&
+	echo 192.168.$subnet.$addr is ALIVE ) &
 	PIDS[$addr]=$!
 done
 

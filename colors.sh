@@ -1,22 +1,3 @@
-# alter the default colors to make them a bit prettier
-echo -en "\e]P01B1D1E" #black      
-echo -en "\e]P1F92672" #darkred    
-echo -en "\e]P282B414" #darkgreen  
-echo -en "\e]P3FD971F" #brown      
-echo -en "\e]P456C2D6" #darkblue   
-echo -en "\e]P58C54FE" #darkmagenta
-echo -en "\e]P6465457" #darkcyan   
-echo -en "\e]P7CCCCC6" #lightgrey  
-echo -en "\e]P8505354" #darkgrey   
-echo -en "\e]P9FF5995" #red        
-echo -en "\e]PAB6E354" #green      
-echo -en "\e]PBFEED6C" #yellow     
-echo -en "\e]PC8CEDFF" #blue       
-echo -en "\e]PD9E6FFE" #magenta    
-echo -en "\e]PE899CA1" #cyan       
-echo -en "\e]PFF8F8F2" #white      
-clear #for background artifacting
-
 ## color pallette
 LS_COLORS=''
 LS_COLORS=$LS_COLORS:'rs=0'
