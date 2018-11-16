@@ -64,7 +64,7 @@ build_prompt() {
 	#echo -e $PROMPT
 
 	# set the PS1 variable; use this if you're not enabling PROMPT_COMMAND
-	PS1=$(wrap $LAST_NUMBER$SEPARATOR$LAST_OUTCOME)$(wrap $USER)$(wrap $DIR)$(wrap $GIT_BRANCH)$(wrap $GIT_CHANGES)$PROMPT
+	PS1="\n"$(wrap $LAST_NUMBER$SEPARATOR$LAST_OUTCOME)$(wrap $USER)$(wrap $DIR)$(wrap $GIT_BRANCH)$(wrap $GIT_CHANGES)$PROMPT
 }
 
 PROMPT_COMMAND='build_prompt'
