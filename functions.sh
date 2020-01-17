@@ -71,7 +71,7 @@ progress(){
 	printf "%0.s=" `seq $completed`
 	echo -n ">"
 	[[ $remaining != 0 ]] && printf "%0.s." `seq $remaining`
-    echo -n "] $percent% ($2)  "
+	echo -n "] $percent% ($2)  "
 }
 typewriter(){
 	text="$1"
@@ -111,4 +111,10 @@ colors() {
 
 wftp(){
 	wget -m ftp://$1 -o $2 --ask-password
+}
+
+yeet() {
+	local branchName=$(git rev-parse --abbrev-ref HEAD)
+	git push -u origin $branchName
+	echo "yote $branchName"
 }

@@ -1,0 +1,3 @@
+#! /bin/sh
+
+node ~/.scripts/publish-tag.js $1 $PWD
